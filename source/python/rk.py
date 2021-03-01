@@ -43,7 +43,7 @@ class BHAccretion:
     def __init__(self):
         # CONSTANTS
         # Polytropic EOS Constant (K)
-        self.K = 1.0
+        self.K = 1.5
         # Gamma value for entire run
         self.gamma = 1.0
         # Gravitational Constant
@@ -85,7 +85,6 @@ class BHAccretion:
         term_1 = (0.5)**((self.gamma+1)/2.0*(self.gamma-1.0))
         term_2 = ((5.-3.*self.gamma)/4.0)**(-1*(5.-3.*self.gamma)/2.0*(self.gamma-1.0))
         lambda_s = term_1 * term_2
-        lambda_s = 1.120
         print("Lambda_s value = {}".format(lambda_s))
         # Using lambda_s to calculate the mass loss rate from 14.3.4
         return 4.0*np.pi*lambda_s*self.rho_inf*self.a_inf*(self.G*self.M/self.a_inf**2)**2
@@ -163,6 +162,11 @@ class BHAccretion:
             # Updating storage variables
             URHO.append(rho)
             UVEL.append(u)
+            
+            # If nan is detected in any of the above variables
+            if np.isnan(rho) or np.isnan(u):
+                print("Nan value detected within the RK4 implementation")
+                return
         
         # Storing required params
         self.RHO.extend(URHO)
@@ -170,7 +174,6 @@ class BHAccretion:
         # Plotting
         X = np.arange(llimit, ulimit, h)[:self.niter]/self.rs
         Y = (np.array(UVEL)/a(np.array(URHO)))[:self.niter]
-        print(Y)
         self._plot(X, Y)
     
     def _plot(self, X, Y):
